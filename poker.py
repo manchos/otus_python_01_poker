@@ -1,24 +1,38 @@
-import collections
 from typing import NamedTuple
+from collections import namedtuple
 
 
 # Card = collections.namedtuple('Card', ['rank', 'suit'])
 
 
-class Card(NamedTuple):
+class Card:
     rank: str
     suit: str
+    def __init__(self, rank_suit: str):
+        if (len(rank_suit)==2
+                and rank_suit.startswith(tuple('123456789TJQKA'),0)
+                and rank_suit.endswith(tuple('CSHD'), 1)):
+            self.rank = rank_suit[0]
+            self.suit = rank_suit[1]
+        else:
+            raise ValueError("Must be 'RS', "
+                             "where R in '123456789TJQKA' and S in 'CSHD'")
     def __str__(self):
         return '{}{}'.format(self.rank, self.suit)
 
+    def __repr__(self):
+        return "'{}{}'".format(self.rank, self.suit)
+
+    # def __repr__(self):
+    #     return "Card(rank='{}', suit='{}')".format(self.rank, self.suit)
 
 
 class CardDeck:
-	ranks = [str(n) for n in range(2, 10)] + list('TJQKA')
-	suits = list('CSHD')
+    ranks = '123456789TJQKA'
+    suits = 'CSHD'
 
-	def __init__(self):
-		self._cards = [Card(rank, suit) for suit in self.suits for rank in self.ranks]
+    def __init__(self):
+        self._cards = [Card(rank, suit) for suit in self.suits for rank in self.ranks]
 
     def __len__(self):
         return len(self._cards)
@@ -26,9 +40,21 @@ class CardDeck:
 
 class Hand:
     def __init__(self, str_hand):
-        # if ()
-        # self._cards =
-        pass
+        hand_list = str_hand.split()
+        if len(hand_list) == 7:
+            self._hand = [Card(rang_suit) for rang_suit in hand_list]
+        else:
+            raise ValueError("In the poker hand must be 7 cards")
+
+    def __len__(self):
+        return len(self._hand)
+
+    def __str__(self):
+        # return "Hand: '{}'".format(', '.join(self._hand))
+        return 'hand: {}'.format(str(self._hand))
+
+    def __repr__(self):
+        return "Card(rank='{}', suit='{}')".format(self.rank, self.suit)
 
 
 
@@ -95,7 +121,7 @@ def best_wild_hand(hand):
 
 
 def test_best_hand():
-    print("test_best_hand..."
+    print("test_best_hand...")
     assert (sorted(best_hand("6C 7C 8C 9C TC 5C JS".split()))
             == ['6C', '7C', '8C', '9C', 'TC'])
     assert (sorted(best_hand("TD TC TH 7C 7D 8C 8S".split()))
@@ -115,6 +141,14 @@ def test_best_wild_hand():
             == ['7C', '7D', '7H', '7S', 'JD'])
     print('OK')
 
+
 if __name__ == '__main__':
-    test_best_hand()
-    test_best_wild_hand()
+    c1 = Card("AS")
+    print(c1)
+
+    hand1 = Hand("6C 7C 8C 9C TC 5C JS")
+    print(hand1)
+
+
+    # test_best_hand()
+    # test_best_wild_hand()
