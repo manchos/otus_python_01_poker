@@ -1,5 +1,5 @@
 import unittest
-from poker import FiveCards
+from poker import FiveCards, best_hand, best_wild_hand
 
 
 class FiveCardsTest(unittest.TestCase):
@@ -52,14 +52,29 @@ class FiveCardsTest(unittest.TestCase):
         # «Пара» – это 2 одинаковые карты:
         self.assertEqual(FiveCards('3S 3H 4C 5D 6C').hand_rank(),
                          (1, 3, [6, 5, 4, 3, 3]))
-    # def test_sub(self):
-    #     self.assertEqual(calc.sub(4, 2), 2)
-    #
-    # def test_mul(self):
-    #     self.assertEqual(calc.mul(2, 5), 10)
-    #
-    # def test_div(self):
-    #     self.assertEqual(calc.div(8, 4), 2)
+
+
+class BestHandTest(unittest.TestCase):
+
+    def test_best_hand(self):
+        print("test_best_hand...")
+        self.assertEqual(sorted(best_hand("6C 7C 8C 9C TC 5C JS".split())),
+                         ['6C', '7C', '8C', '9C', 'TC'])
+        self.assertEqual(sorted(best_hand("TD TC TH 7C 7D 8C 8S".split())),
+                         ['8C', '8S', 'TC', 'TD', 'TH'])
+        self.assertEqual(sorted(best_hand("JD TC TH 7C 7D 7S 7H".split())),
+                         ['7C', '7D', '7H', '7S', 'JD'])
+
+
+    def test_best_wild_hand(self):
+        print("test_best_wild_hand...")
+        self.assertEqual(sorted(best_wild_hand("6C 7C 8C 9C TC 5C ?B".split())),
+                         ['7C', '8C', '9C', 'JC', 'TC'])
+        self.assertEqual(sorted(best_wild_hand("TD TC 5H 5C 7C ?R ?B".split())),
+                         ['7C', 'TC', 'TD', 'TH', 'TS'])
+        self.assertEqual(sorted(best_wild_hand("JD TC TH 7C 7D 7S 7H".split())),
+                         ['7C', '7D', '7H', '7S', 'JD'])
+
 
 
 if __name__ == '__main__':

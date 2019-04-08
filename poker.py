@@ -1,42 +1,6 @@
-from typing import NamedTuple
-from collections import namedtuple
-from collections import Counter, defaultdict
+
+from collections import Counter
 from itertools import combinations, product
-
-# Card = collections.namedtuple('Card', ['rank', 'suit'])
-
-def right_card(rank: str, suit: str):
-        if (type(rank) == type(suit) == str and
-            len(rank) == 1 and rank in CardDeck.ranks and
-                len(suit) == 1 and suit in CardDeck.suits):
-            return '{}{}'.format(rank, suit)
-        else:
-            raise ValueError(
-                "Must be 'RS', where R in '123456789TJQKA' and S in 'CSHD'")
-
-class Card(NamedTuple):
-    rank: str
-    suit: str
-
-    # def __init__(self, card: str):
-    #     if (len(rank_suit)==2
-    #             and ran
-    #             and rank_suit.endswith(tuple('CSHD'), 1)):
-    #         self.rank = rank_suit[0]
-    #         self.suit = rank_suit[1]
-    #     else:
-    #         raise ValueError("Must be 'RS', "
-    #                          "where R in '123456789TJQKA' and S in 'CSHD'")
-
-
-    def __str__(self):
-        return '{}{}'.format(self.rank, self.suit)
-
-    def __repr__(self):
-        return "'{}{}'".format(self.rank, self.suit)
-
-    # def __repr__(self):
-    #     return "Card(rank='{}', suit='{}')".format(self.rank, self.suit)
 
 
 class CardDeck:
@@ -47,11 +11,8 @@ class CardDeck:
     # Ранги:
     # трефы(clubs, C), пики(spades, S), червы(hearts, H), бубны(diamonds, D)
     suits_list = list('CSHD')
-
     ranks = frozenset(ranks_list[2:])
     suits = frozenset(suits_list)
-
-    # suit_values = dict(spades=3, hearts=2, diamonds=1, clubs=0)
 
     @classmethod
     def get_card_rank_value(cls, card):
@@ -70,6 +31,15 @@ class CardDeck:
     # def __len__(self):
     #     return len(self._cards)
 
+def get_verified_card_str(card):
+        rank, suit = card
+        if (type(rank) == type(suit) == str and
+                rank in CardDeck.ranks and suit in CardDeck.suits):
+            return '{}{}'.format(rank, suit)
+        else:
+            raise ValueError(
+                "Must be 'RS', where R is in '123456789TJQKA' and S is in 'CSHD'")
+
 
 class FiveCards:
     def __init__(self, five_cards_str):
@@ -80,7 +50,7 @@ class FiveCards:
         self.suits = []
         if len(five_cards_list) == 5:
             for card_str in five_cards_list:
-                self.cards_list.append(right_card(*card_str))
+                self.cards_list.append(get_verified_card_str(card_str))
                 self.ranks.append(card_str[0])
                 self.suits.append(card_str[1])
             self.ranks_values = self.get_ranks_values()
@@ -195,33 +165,13 @@ def get_wild_hands_iter(joker_hand_list: list):
         yield '{} {}'.format(str_hand, cards_str).split()
 
 
-def best_hand(hand):
+def best_hand(hand: list):
     """Из "руки" в 7 карт возвращает лучшую "руку" в 5 карт """
-    gen_five_cards = (" ".join(i) for i in combinations(hand, 5))
-    best_five_cards = defaultdict(list)
-    max_rank = 0
-    for five_cards_str in gen_five_cards:
-        five_cards = FiveCards(five_cards_str)
-        # print(five_cards_str, ranks_tuple)
-
-        if five_cards.rank >= max_rank:
-            max_rank = five_cards.rank
-            aux_rank = five_cards.aux_rank
-
-            if not best_five_cards[max_rank]:
-                best_five_cards[max_rank] = defaultdict(list)
-            best_five_cards[max_rank][aux_rank].append(five_cards.cards_list)
-    max_additional_rank = max(best_five_cards[max_rank])
-    print(best_five_cards)
-    print(max_rank, max_additional_rank, best_five_cards[max_rank][max_additional_rank])
-    return best_five_cards[max_rank][max_additional_rank]
-
-
-def best_hand_(hand: list):
-    """Из "руки" в 7 карт возвращает лучшую "руку" в 5 карт """
+    len(hand)
     gen_five_cards = (" ".join(i) for i in combinations(hand, 5))
     best_five_cards = get_best_five_cards(gen_five_cards)
     return best_five_cards.cards_list
+
 
 def get_best_five_cards(five_cards_iter):
     max_rank = 0
@@ -253,48 +203,18 @@ def best_wild_hand(hand_list):
         best_hands_set = set()
 
         for hand in wild_hand_iter:
-            best_hands_set.add(' '.join(best_hand_(hand)))
+            best_hands_set.add(' '.join(best_hand(hand)))
 
         return sorted(get_best_five_cards(best_hands_set).cards_list)
     else:
-        return best_hand_(hand_list)
-
-
-def test_best_hand():
-    print("test_best_hand...")
-    assert (sorted(best_hand("6C 7C 8C 9C TC 5C JS".split()))
-            == ['6C', '7C', '8C', '9C', 'TC'])
-    assert (sorted(best_hand("TD TC TH 7C 7D 8C 8S".split()))
-            == ['8C', '8S', 'TC', 'TD', 'TH'])
-    assert (sorted(best_hand("JD TC TH 7C 7D 7S 7H".split()))
-            == ['7C', '7D', '7H', '7S', 'JD'])
-    print('OK')
-
-
-def test_best_wild_hand():
-    print("test_best_wild_hand...")
-    assert (sorted(best_wild_hand("6C 7C 8C 9C TC 5C ?B".split()))
-            == ['7C', '8C', '9C', 'JC', 'TC'])
-    assert (sorted(best_wild_hand("TD TC 5H 5C 7C ?R ?B".split()))
-            == ['7C', 'TC', 'TD', 'TH', 'TS'])
-    assert (sorted(best_wild_hand("JD TC TH 7C 7D 7S 7H".split()))
-            == ['7C', '7D', '7H', '7S', 'JD'])
-    print('OK')
+        return best_hand(hand_list)
 
 
 if __name__ == '__main__':
 
-    super_hand = best_hand("JD TC TH 7C 7D 7S 7H".split())
-
-
     c_list = "TD TC 5H 5C 7C ?R ?B".split()
-    c_list = '6C 7C 8C 9C TC 5C ?B'.split()
-    c_list = "JD TC TH 7C 7D 7S 7H".split()
 
-    print('6C 7C 8C 9C TC 5C JS : {}'.format(best_hand("6C 7C 8C 9C TC 5C JS".split())))
     print('6C 7C 8C 9C TC 5C JS : {}'.format(
-        best_hand_("6C 7C 8C 9C TC 5C JS".split())))
-    # c_list.remove('?B')
-    # set(product(ranks, 'CS'))
-    #
+        best_hand("6C 7C 8C 9C TC 5C JS".split())))
+
     print(sorted(best_wild_hand(c_list)))
