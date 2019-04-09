@@ -26,7 +26,8 @@ class CardDeck:
         return cls.ranks_list.index(rank)
 
     # def __init__(self):
-    #     self._cards = [Card(rank, suit) for suit in self.suits for rank in self.ranks]
+    #     self._cards =
+    #     [Card(rank, suit) for suit in self.suits for rank in self.ranks]
 
     # def __len__(self):
     #     return len(self._cards)
@@ -38,7 +39,9 @@ def get_verified_card_str(card):
             return '{}{}'.format(rank, suit)
         else:
             raise ValueError(
-                "Must be 'RS', where R is in '123456789TJQKA' and S is in 'CSHD'")
+                "Must be 'RS', where R is in '123456789TJQKA' and "
+                "S is in 'CSHD'"
+            )
 
 
 class FiveCards:
@@ -102,44 +105,46 @@ class FiveCards:
         """Возвращает значение определяющее ранг 'руки'"""
         # «Стрит Флеш» – 5 карт одной масти по порядку:
         if self.straight() and self.flush():
-            return (8, max(self.ranks_values))
+            return 8, max(self.ranks_values)
         # «Каре» – 4 карты одного ранга:
         elif self.kind(4):
-            return (7, self.kind(4), self.kind(1))
-        # «Фулл Хаус» – комбинация, включающая в себя «Пару» и «Тройку» одновременно:
+            return 7, self.kind(4), self.kind(1)
+        # «Фулл Хаус» – комбинация,
+        # включающая в себя «Пару» и «Тройку» одновременно:
         elif self.kind(3) and self.kind(2):
-            return (6, self.kind(3), self.kind(2))
+            return 6, self.kind(3), self.kind(2)
         # «Флеш» – 5 одномастных карт:
         elif self.flush():
-            return (5, self.ranks_values)
+            return 5, self.ranks_values
         # «Стрит» – 5 собранных по порядку карт любой масти:
         elif self.straight():
-            return (4, max(self.ranks_values))
+            return 4, max(self.ranks_values)
         # «Сет» или «Тройка» – 3 карты одного ранга:
         elif self.kind(3):
-            return (3, self.kind(3), self.ranks_values)
+            return 3, self.kind(3), self.ranks_values
         # «Две пары» – 4 карты, среди которых собраны по 2 одинаковых по рангу:
         elif self.two_pair():
-            return (2, self.two_pair(), self.ranks_values)
+            return 2, self.two_pair(), self.ranks_values
         # «Пара» – это 2 одинаковые карты:
         elif self.kind(2):
-            return (1, self.kind(2), self.ranks_values)
+            return 1, self.kind(2), self.ranks_value
         else:
-            return (0, self.ranks_values)
+            return 0, self.ranks_values
 
     def get_aux_rank(self, aux_ranks):
         ranks_sum = 0
         for rank_val in aux_ranks:
-            if type(rank_val) in (list, tuple):
+            if isinstance(rank_val, (list, tuple)):
                 ranks_sum += sum(rank_val)
-            elif type(rank_val) == int:
+            elif isinstance(rank_val, int):
                 ranks_sum += rank_val
         return ranks_sum
 
 
 def get_wild_hands_iter(joker_hand_list: list):
     joker_hand_list = joker_hand_list[:]
-    hand_set = set([(card[0], card[1]) for card in joker_hand_list if card[0] != '?'])
+    hand_set = set([(card[0], card[1]) for card
+                    in joker_hand_list if card[0] != '?'])
     suits = ''
     if '?B' in joker_hand_list:
         suits += 'CS'
@@ -178,7 +183,7 @@ def get_best_five_cards(five_cards_iter):
     max_aux_rank = 0
     best_five_cards = 0
     for five_cards in five_cards_iter:
-        if type(five_cards) != str:
+        if not isinstance(five_cards, str):
             five_cards = ' '.join(five_cards)
         five_cards = FiveCards(five_cards)
 
